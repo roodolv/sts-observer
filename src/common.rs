@@ -212,6 +212,8 @@ fn get_file_modified_time<P: AsRef<Path>>(path: &P) -> Result<u64, Error> {
 
 // 待機(Waiting)モードで実行されるautosaveチェック用関数
 pub fn sync_json_with_autosave(mode_selector: &mut ModeSelector, target: &mut Target, json_data: &mut JsonData) {
+    // ループ前に監視対象をリセット
+    mode_selector.reset_target();
     let character_list = ["IRONCLAD", "THE SILENT", "DEFECT", "WATCHER"];
     for character in character_list {
         let autosave_path = target.autosave_dir_path().join(&format!("{}.autosave", character));
