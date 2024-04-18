@@ -20,7 +20,7 @@ This application performs the following tasks:
     - The default output PATH is `C:\Users\Default\Desktop\`.
 - Automatically transitions between 3 modes (Waiting, Watching, and FileIO) using a finite state machine.
 
-Additionally, if you have the Rust development environment installed on your machine, you can freely customize JSON values and the implementations of output functions.
+The JSON values can be easily changed, and if you have the Rust development environment installed on your machine, you can freely customize the implementation of the output functions.
 
 
 ## Build
