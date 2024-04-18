@@ -13,10 +13,10 @@ And this software uses the 'libsts' crate, so please read the documents below to
 
 This application performs the following tasks:
 
-- Monitors the latest `.autosave` files in the specified PATH written in JSON file.
+- Monitors the latest `.autosave` files in the specified PATH in the JSON file.
     - The default autosave PATH is `C:\Program Files (x86)\Steam\steamapps\common\SlayTheSpire\saves\`.
 - Detects file modifications by retrieving their UNIX timestamps.
-- Writes the files as `.txt` to the specified PATH in JSON file.
+- Outputs a `.txt` file containing parameters of de-obfuscated `.autosave` files to the specified PATH in the JSON file.
     - The default output PATH is `C:\Users\Default\Desktop\`.
 - Automatically transitions between 3 modes (Waiting, Watching, and FileIO) using a finite state machine.
 
