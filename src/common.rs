@@ -252,3 +252,18 @@ pub fn sync_json_with_autosave(mode_selector: &mut ModeSelector, target: &mut Ta
         }
     }
 }
+
+pub fn switch_fileio_transition<T>(mode_selector: &mut ModeSelector, fileio_mode: Mode, mode: &T)
+    where T: std::fmt::Debug + Clone + PartialEq {
+    if mode_selector.do_writing() {
+        // 書き出しスイッチがONならファイルI/Oモードに遷移
+        println!("Mode transition: from {:?} to FileIO", mode);
+        mode_selector.reset_times_repeated();
+        mode_selector.switch_mode(&fileio_mode);
+        assert_eq!(mode_selector.current_mode(), fileio_mode);
+    } else {
+        // 新しいautosaveが見つかるまで監視(Waiting)モードを反復
+        println!("Now on interval...(Mode: {:?})\n", mode);
+        mode_selector.increase_times_repeated();
+    }
+}

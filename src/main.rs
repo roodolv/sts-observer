@@ -33,7 +33,7 @@ fn main() {
         /* -----------------------------------
             待機モードの処理
         ----------------------------------- */
-        while let Mode::IsWaiting(ref _mode) = mode_selector.current_mode() {
+        while let Mode::IsWaiting(ref mode) = mode_selector.current_mode() {
             println!("<<Waiting mode: loop{}>>", mode_selector.times_repeated() + 1);
 
             /* autosaveの更新日時を比較してJSONを更新&モード分岐
@@ -54,25 +54,15 @@ fn main() {
                 println!("\nNo '.autosave' file found");
             }
 
-            // do_writingスイッチのON/OFFでファイルI/O遷移判定
-            if mode_selector.do_writing() {
-                // 書き出しスイッチがONならファイルI/Oモードに遷移
-                println!("Mode transition: from Waiting to FileIO");
-                mode_selector.reset_times_repeated();
-                mode_selector.switch_mode(&fileio_mode);
-                assert_eq!(mode_selector.current_mode(), fileio_mode);
-            } else {
-                // 新しいautosaveが見つかるまで監視(Waiting)モードを反復
-                println!("Now on interval...(Mode: Waiting)\n");
-                mode_selector.increase_times_repeated();
-                wait_ms(loop_interval_ms);
-            }
+            // ファイルI/O遷移判定
+            switch_fileio_transition(&mut mode_selector, fileio_mode.clone(), mode);
+            wait_ms(loop_interval_ms);
         }
 
         /* -----------------------------------
             監視モードの処理
         ----------------------------------- */
-        while let Mode::IsWatching(ref _mode) = mode_selector.current_mode() {
+        while let Mode::IsWatching(ref mode) = mode_selector.current_mode() {
             println!("<<Watching mode: loop{}>>", mode_selector.times_repeated() + 1);
             // 定期的にループから抜け出し待機(Waiting)モードへ遷移して他のautosaveファイルを確認
             if mode_selector.times_repeated() >= max_watching_repeat {
@@ -124,19 +114,9 @@ fn main() {
                 _ => {},
             }
 
-            // do_writingスイッチのON/OFFでファイルI/O遷移判定
-            if mode_selector.do_writing() {
-                // ファイルI/Oモードに遷移
-                println!("Mode transition: from Watching to FileIO");
-                mode_selector.reset_times_repeated();
-                mode_selector.switch_mode(&fileio_mode);
-                assert_eq!(mode_selector.current_mode(), fileio_mode);
-            } else {
-                // autosaveが見つかるまで監視(Watching)モードを反復
-                println!("Now on interval...(Mode: Watching)\n");
-                mode_selector.increase_times_repeated();
-                wait_ms(loop_interval_ms);
-            }
+            // ファイルI/O遷移判定
+            switch_fileio_transition(&mut mode_selector, fileio_mode.clone(), mode);
+            wait_ms(loop_interval_ms);
         }
 
         /* -----------------------------------
