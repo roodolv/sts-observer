@@ -267,3 +267,12 @@ pub fn switch_fileio_transition<T>(mode_selector: &mut ModeSelector, fileio_mode
         mode_selector.increase_times_repeated();
     }
 }
+
+pub fn switch_watching_to_waiting(mode_selector: &mut ModeSelector, waiting_mode: Mode) {
+    mode_selector.reset_target();
+    mode_selector.reset_times_repeated();
+    mode_selector.turn_on_do_writing(); // 待機モードで最初の空txt出力をON
+    println!("Mode transition: from Watching to Waiting");
+    mode_selector.switch_mode(&waiting_mode);
+    assert_eq!(mode_selector.current_mode(), waiting_mode);
+}

@@ -67,27 +67,17 @@ fn main() {
             // 定期的にループから抜け出し待機(Waiting)モードへ遷移して他のautosaveファイルを確認
             if mode_selector.times_repeated() >= max_watching_repeat {
                 println!("Periodic shift to Waiting mode");
-                mode_selector.reset_target();
-                mode_selector.reset_times_repeated();
-                mode_selector.turn_on_do_writing(); // 待機モードで最初の空txt出力をON
-                println!("Mode transition: from Watching to Waiting");
-                mode_selector.switch_mode(&waiting_mode);
-                assert_eq!(mode_selector.current_mode(), waiting_mode);
+                switch_watching_to_waiting(&mut mode_selector, waiting_mode.clone());
                 continue;
             }
-            // 毎ループautosaveファイルの存在を確認
+            // 毎ループ監視対象のautosaveファイルの存在を確認
             if target.autosave_exists() {
                 println!("{}'s autosave exists", &target.character_type());
                 mode_selector.found_target(); // 一応
             } else {
-                println!("{}'s autosave does not exist", &target.character_type());
                 // autosaveが削除されていれば再び待機モードへ
-                mode_selector.reset_target();
-                mode_selector.reset_times_repeated();
-                mode_selector.turn_on_do_writing(); // 待機モードで最初の空txt出力をON
-                println!("Mode transition: from Watching to Waiting");
-                mode_selector.switch_mode(&waiting_mode);
-                assert_eq!(mode_selector.current_mode(), waiting_mode);
+                println!("{}'s autosave does not exist", &target.character_type());
+                switch_watching_to_waiting(&mut mode_selector, waiting_mode.clone());
                 continue;
             }
 
