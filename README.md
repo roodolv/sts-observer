@@ -9,7 +9,21 @@ And this software uses the 'libsts' crate, so please read the documents below to
 - [libsts API Documentation](https://docs.rs/libsts/)
 - Cargo package: [libsts](https://crates.io/crates/libsts)
 
-## How to build
+## Features
+
+This application performs the following tasks:
+
+- Monitors the latest `.autosave` files in the specified PATH written in JSON file.
+    - The default autosave PATH is `C:\Program Files (x86)\Steam\steamapps\common\SlayTheSpire\saves\`.
+- Detects file modifications by retrieving their UNIX timestamps.
+- Writes the files as `.txt` to the specified PATH in JSON file.
+    - The default output PATH is `C:\Users\Default\Desktop\`.
+- Automatically transitions between 3 modes (Waiting, Watching, and FileIO) using a finite state machine.
+
+Additionally, if you have the Rust development environment installed on your machine, you can freely customize JSON values and the implementations of output functions.
+
+
+## Build
 
 ### Using Terminal
 
@@ -22,11 +36,11 @@ cp -f ./settings.json ./target/release/settings.json
 
 ## Usage
 
-NOTE: Please place the JSON file ("settings.json") in the same directory as the executable.
+**NOTE**: If you're running this from a file explorer, please ensure that the JSON file ("settings.json") is placed in the same directory as the executable. However, if you're using a terminal, make sure it's in your current directory.
 
-Please execute the file created following the above instructions.
+Please run the file created following the instructions above.
 
-Alternatively, DOWNLOAD the executable from here:
+Alternatively, you can download and run the executable from here:
 [Latest Releases](https://github.com/roodolv/sts-observer/releases/latest)
 
 ## Thanks
