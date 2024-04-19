@@ -106,7 +106,6 @@ impl JsonData {
             path: Path::new(LOCAL_JSON_PATH),
             body: {
                 let json_content = fs::read_to_string(Path::new(LOCAL_JSON_PATH)).unwrap();
-
                 serde_json::from_str(&json_content).map_err(|e| Error::custom(e.to_string())).unwrap()
             },
         }
@@ -210,52 +209,42 @@ fn get_file_modified_time<P: AsRef<Path>>(path: &P) -> Result<u64, Error> {
                   .as_secs())
 }
 
-// 待機(Waiting)モードで実行されるautosaveチェック用関数
-pub fn sync_json_with_autosave(mode_selector: &mut ModeSelector, target: &mut Target, json_data: &mut JsonData) {
-    // ループ前に監視対象をリセット
-    mode_selector.reset_target();
-    let character_list = ["IRONCLAD", "THE SILENT", "DEFECT", "WATCHER"];
-    for character in character_list {
-        let autosave_path = target.autosave_dir_path().join(&format!("{}.autosave", character));
-        if !autosave_path.is_file() {
-            continue; // 指定したファイル以外はスキップ
-        }
-
-        // JSON内の更新日時と比較
-        match json_data.compare_modified_time(&autosave_path) {
-            ModifiedTimeStatus::New => {
-                println!("The found autosave is NEWer than JSON's one!");
-                // 監視対象のフルパス・キャラクタータイプ・更新日時を更新
-                target.update_params(&autosave_path);
-                // JSONの値を監視対象の値で上書き
-                json_data.update_json_body("modified_time", &target.modified_time());
-                json_data.update_json_body("character_type", &target.character_type());
-                // 監視対象を発見したのでモードセレクト変数を更新
-                mode_selector.found_target();
-                // 更新差分があるのでファイル書き出しON
-                mode_selector.turn_on_do_writing();
-            },
-            ModifiedTimeStatus::Equal => {
-                println!("The found autosave is SAME as JSON's one!");
-                // 監視対象のフルパス・キャラクタータイプ・更新日時を更新
-                target.update_params(&autosave_path);
-                // JSONの値を監視対象の値で上書き
-                json_data.update_json_body("character_type", &target.character_type());
-                // 監視対象を発見したのでモードセレクト変数を更新
-                mode_selector.found_target();
-                // 更新差分がないのでファイル書き出しOFF
-                mode_selector.turn_off_do_writing();
-            },
-            ModifiedTimeStatus::Old => {
-                println!("Skip! The found autosave is OLDer than JSON's one!");
-                /* ファイル書き出しスイッチは敢えて操作しない(元のまま) */
-                continue; // JSONの更新日時より古ければスキップ
-            },
-        }
+#[rustfmt::skip]
+pub fn autosave_mode_selector(
+        mode_selector: &mut ModeSelector,
+        target: &mut Target,
+        json_data: &mut JsonData,
+        autosave_path: &Path
+    ) {
+    match json_data.compare_modified_time(&autosave_path) {
+        ModifiedTimeStatus::New => {
+            println!("The found autosave is NEWer than JSON's one!");
+            // 監視対象のフルパス・キャラクタータイプ・更新日時を更新
+            target.update_params(&autosave_path);
+            // JSONの値を監視対象の値で上書き
+            json_data.update_json_body("modified_time", &target.modified_time());
+            json_data.update_json_body("character_type", &target.character_type());
+            // 監視対象を発見したのでモードセレクト変数を更新
+            mode_selector.found_target();
+            // 更新差分があるのでファイル書き出しON
+            mode_selector.turn_on_do_writing();
+        },
+        ModifiedTimeStatus::Equal => {
+            println!("The found autosave is SAME as JSON's one!");
+            // 監視対象のフルパス・キャラクタータイプ・更新日時を更新
+            target.update_params(&autosave_path);
+            // 監視対象を発見したのでモードセレクト変数を更新
+            mode_selector.found_target();
+            // 更新差分がないのでファイル書き出しOFF
+            mode_selector.turn_off_do_writing();
+        },
+        _ => {
+            /* ファイル書き出しスイッチは敢えて操作しない(元のまま) */
+        },
     }
 }
 
-pub fn switch_fileio_transition<T>(mode_selector: &mut ModeSelector, fileio_mode: Mode, mode: &T)
+pub fn switch_to_fileio<T>(mode_selector: &mut ModeSelector, fileio_mode: Mode, mode: &T)
     where T: std::fmt::Debug + Clone + PartialEq {
     if mode_selector.do_writing() {
         // 書き出しスイッチがONならファイルI/Oモードに遷移
@@ -270,7 +259,7 @@ pub fn switch_fileio_transition<T>(mode_selector: &mut ModeSelector, fileio_mode
     }
 }
 
-pub fn switch_watching_to_waiting(mode_selector: &mut ModeSelector, waiting_mode: Mode) {
+pub fn switch_to_waiting(mode_selector: &mut ModeSelector, waiting_mode: Mode) {
     mode_selector.reset_target();
     mode_selector.reset_times_repeated();
     mode_selector.turn_on_do_writing(); // 待機モードで最初の空txt出力をON

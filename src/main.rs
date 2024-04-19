@@ -25,7 +25,7 @@ fn main() {
     loop {
         // ループカウンタ処理
         loop_counter += 1;
-        println!("<<<<Loop{}>>>>", loop_counter);
+        println!("\n<<<<Loop{}>>>>", loop_counter);
 
         // モード確認
         println!("current_mode: {:?}", mode_selector.current_mode());
@@ -34,15 +34,24 @@ fn main() {
             待機モードの処理
         ----------------------------------- */
         while let Mode::IsWaiting(ref mode) = mode_selector.current_mode() {
-            println!("<<Waiting mode: loop{}>>", mode_selector.times_repeated() + 1);
+            println!("\n<<Waiting mode: loop{}>>", mode_selector.times_repeated() + 1);
 
             /* autosaveの更新日時を比較してJSONを更新&モード分岐
 
               JSONより新しい場合: txt出力後に監視モードへ遷移
               JSONと等しい場合: 待機モードを反復(txt出力しない)
-              JSONより古い場合: 初回のみ空のtxt出力後に待機モードを反復
+              それ以外: 初回のみ空のtxt出力後に待機モードを反復
             */
-            sync_json_with_autosave(&mut mode_selector, &mut target, &mut json_data);
+            mode_selector.reset_target();
+            let character_list = ["IRONCLAD", "THE SILENT", "DEFECT", "WATCHER"];
+            for character in character_list {
+                let autosave_path = target.autosave_dir_path().join(&format!("{}.autosave", character));
+                if !autosave_path.is_file() {
+                    continue; // 指定したファイル以外はスキップ
+                }
+                // JSONの更新日時と比較＆監視対象更新＆モード分岐
+                autosave_mode_selector(&mut mode_selector, &mut target, &mut json_data, &autosave_path);
+            }
 
             if mode_selector.has_target() {
                 println!("\nAutosave file found!");
@@ -55,7 +64,7 @@ fn main() {
             }
 
             // ファイルI/O遷移判定
-            switch_fileio_transition(&mut mode_selector, fileio_mode.clone(), mode);
+            switch_to_fileio(&mut mode_selector, fileio_mode.clone(), mode);
             wait_ms(loop_interval_ms);
         }
 
@@ -63,11 +72,11 @@ fn main() {
             監視モードの処理
         ----------------------------------- */
         while let Mode::IsWatching(ref mode) = mode_selector.current_mode() {
-            println!("<<Watching mode: loop{}>>", mode_selector.times_repeated() + 1);
+            println!("\n<<Watching mode: loop{}>>", mode_selector.times_repeated() + 1);
             // 定期的にループから抜け出し待機(Waiting)モードへ遷移して他のautosaveファイルを確認
             if mode_selector.times_repeated() >= max_watching_repeat {
                 println!("Periodic shift to Waiting mode");
-                switch_watching_to_waiting(&mut mode_selector, waiting_mode.clone());
+                switch_to_waiting(&mut mode_selector, waiting_mode.clone());
                 continue;
             }
             // 毎ループ監視対象のautosaveファイルの存在を確認
@@ -77,35 +86,17 @@ fn main() {
             } else {
                 // autosaveが削除されていれば再び待機モードへ
                 println!("{}'s autosave does not exist", &target.character_type());
-                switch_watching_to_waiting(&mut mode_selector, waiting_mode.clone());
+                switch_to_waiting(&mut mode_selector, waiting_mode.clone());
                 continue;
             }
 
-            // 監視中autosaveの更新日時比較＆モード分岐
+            // 監視中autosaveの更新日時比較＆監視対象更新＆モード分岐
             let cloned_full_path = target.full_path();
             let target_path = Path::new(&cloned_full_path);
-            match json_data.compare_modified_time(&target_path) {
-                ModifiedTimeStatus::New => {
-                    println!("Update JSON since the found autosave is NEWer!\n");
-                    // 監視対象のフルパス・更新日時・キャラクタータイプを更新
-                    target.update_params(&target_path);
-                    // JSONの値を監視対象の値で上書き
-                    json_data.update_json_body("modified_time", &target.modified_time());
-                    json_data.update_json_body("character_type", &target.character_type());
-
-                    // 更新されていればファイルI/Oモードへの遷移をトリガー
-                    mode_selector.turn_on_do_writing(); // 差分がある時のみファイル書き出しをON
-                },
-                ModifiedTimeStatus::Equal => {
-                    // 同じ更新日時の場合は監視モードをループ
-                    println!("Continue watching! The found autosave is SAME as JSON's one!");
-                    mode_selector.turn_off_do_writing(); // 差分がない場合はファイル書き出しをOFF
-                },
-                _ => {},
-            }
+            autosave_mode_selector(&mut mode_selector, &mut target, &mut json_data, target_path);
 
             // ファイルI/O遷移判定
-            switch_fileio_transition(&mut mode_selector, fileio_mode.clone(), mode);
+            switch_to_fileio(&mut mode_selector, fileio_mode.clone(), mode);
             wait_ms(loop_interval_ms);
         }
 
@@ -113,7 +104,7 @@ fn main() {
             ファイルI/Oモードの処理
         ----------------------------------- */
         if let Mode::IsFileIO(ref _mode) = mode_selector.current_mode() {
-            println!("<<FileI/O mode>>");
+            println!("\n<<FileI/O mode>>");
             // 監視対象の有無で書き出すファイル内容を場合分け
             if mode_selector.has_target() {
                 // 監視対象のファイルを読み込む
@@ -144,7 +135,7 @@ fn main() {
         /* -----------------------------------
             共通のウェイト処理
         ----------------------------------- */
-        println!("\nNow on interval...(main loop)\n");
+        println!("\nNow on interval...(main loop)");
         wait_ms(loop_interval_ms);
     }
 }
