@@ -18,7 +18,7 @@ This application performs the following tasks:
 - Detects file modifications by retrieving their UNIX timestamps.
 - Outputs a `.txt` file containing parameters of de-obfuscated `.autosave` files to the specified PATH in the JSON file.
     - The default output PATH is `C:\Users\Default\Desktop\`.
-- Automatically transitions between 3 modes (Waiting, Watching, and FileIO) using a finite state machine.
+- Automatic transitions between 3 modes (Waiting, Watching, and FileIO) using a finite state machine.
 
 The JSON values can be easily changed, and if you have the Rust development environment installed on your machine, you can freely customize the implementation of the output functions.
 
