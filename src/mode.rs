@@ -25,7 +25,7 @@ pub struct ModeSelector {
     current_mode: Mode,
     has_target: bool,
     do_writing: bool,
-    times_repeated: u8,
+    times_repeated: u16,
 }
 #[rustfmt::skip]
 impl ModeSelector {
@@ -34,7 +34,7 @@ impl ModeSelector {
             current_mode: Mode::IsWaiting(Waiting::new()), // Waitingで開始
             has_target: false,
             do_writing: true,
-            times_repeated: 0_u8,
+            times_repeated: 0_u16,
         }
     }
     pub fn current_mode(&self) -> Mode { self.current_mode.clone() }
@@ -50,9 +50,9 @@ impl ModeSelector {
     pub fn turn_on_do_writing(&mut self) { self.do_writing = true; }
     pub fn turn_off_do_writing(&mut self) { self.do_writing = false; }
 
-    pub fn times_repeated(&self) -> u8 { self.times_repeated }
+    pub fn times_repeated(&self) -> u16 { self.times_repeated }
     pub fn increase_times_repeated(&mut self) { self.times_repeated += 1; }
-    pub fn reset_times_repeated(&mut self) { self.times_repeated = 0_u8; }
+    pub fn reset_times_repeated(&mut self) { self.times_repeated = 0_u16; }
 }
 
 #[derive(Debug, Clone, PartialEq)]

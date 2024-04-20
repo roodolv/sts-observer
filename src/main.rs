@@ -18,8 +18,8 @@ fn main() {
     let watching_mode = Mode::IsWatching(Watching::new());
     let fileio_mode = Mode::IsFileIO(FileIO::new());
 
-    let max_watching_repeat: u8 = json_data.get_value_from_key("max_watching_repeat").unwrap();
-    let mut loop_counter: u8 = 0;
+    let max_watching_repeat: u16 = json_data.get_value_from_key("max_watching_repeat").unwrap();
+    let mut loop_counter: u16 = 0;
     let loop_interval_ms: u64 = json_data.get_value_from_key("loop_interval_ms").unwrap();
 
     loop {

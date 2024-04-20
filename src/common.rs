@@ -253,7 +253,7 @@ pub fn switch_to_fileio<T>(mode_selector: &mut ModeSelector, fileio_mode: Mode, 
         mode_selector.switch_mode(&fileio_mode);
         assert_eq!(mode_selector.current_mode(), fileio_mode);
     } else {
-        // 新しいautosaveが見つかるまで監視(Waiting)モードを反復
+        // 新しいautosaveが見つかるまで現在のモードを反復
         println!("Now on interval...(Mode: {:?})\n", mode);
         mode_selector.increase_times_repeated();
     }
