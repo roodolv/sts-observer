@@ -84,8 +84,8 @@ impl Target {
     }
     pub fn write_txt_empty(&self) {
         if let Ok(txt_body) = compose_txt_empty() {
-            let _ = fs::write(self.write_txt_dir_path.clone() + "sts_relic_potion.txt", &txt_body);
-            let _ = fs::write(self.write_txt_dir_path.clone() + "sts_card_choice.txt", &txt_body);
+            let _ = fs::write(self.write_txt_dir_path.clone() + "sts_basic_info.txt", &txt_body);
+            let _ = fs::write(self.write_txt_dir_path.clone() + "sts_enemies.txt", &txt_body);
             println!("Save succeeded: EMPTY relics&potions txt");
         }
     }
