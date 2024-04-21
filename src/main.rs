@@ -18,7 +18,7 @@ fn main() {
     let watching_mode = Mode::IsWatching(Watching::new());
     let fileio_mode = Mode::IsFileIO(FileIO::new());
 
-    let max_watching_repeat: u16 = json_data.get_value_from_key("max_watching_repeat").unwrap();
+    let max_mode_repeat: u16 = json_data.get_value_from_key("max_mode_repeat").unwrap();
     let mut loop_counter: u16 = 0;
     let loop_interval_ms: u64 = json_data.get_value_from_key("loop_interval_ms").unwrap();
 
@@ -63,6 +63,13 @@ fn main() {
                 println!("\nNo '.autosave' file found");
             }
 
+            // 反復回数上限に達した際パス先が存在しなければ空txt出力
+            if mode_selector.times_repeated() >= max_mode_repeat {
+                if !target.autosave_exists() {
+                    mode_selector.turn_on_do_writing();
+                }
+            }
+
             // ファイルI/O遷移判定
             switch_to_fileio(&mut mode_selector, fileio_mode.clone(), mode);
             wait_ms(loop_interval_ms);
@@ -74,7 +81,7 @@ fn main() {
         while let Mode::IsWatching(ref mode) = mode_selector.current_mode() {
             println!("\n<<Watching mode: loop{}>>", mode_selector.times_repeated() + 1);
             // 定期的にループから抜け出し待機(Waiting)モードへ遷移して他のautosaveファイルを確認
-            if mode_selector.times_repeated() >= max_watching_repeat {
+            if mode_selector.times_repeated() >= max_mode_repeat {
                 println!("Periodic shift to Waiting mode");
                 switch_to_waiting(&mut mode_selector, waiting_mode.clone());
                 continue;
