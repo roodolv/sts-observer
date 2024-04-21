@@ -86,7 +86,7 @@ impl Target {
         if let Ok(txt_body) = compose_txt_empty() {
             let _ = fs::write(self.write_txt_dir_path.clone() + "sts_basic_info.txt", &txt_body);
             let _ = fs::write(self.write_txt_dir_path.clone() + "sts_enemies.txt", &txt_body);
-            println!("Save succeeded: EMPTY relics&potions txt");
+            println!("Save succeeded: EMPTY txts");
         }
     }
 }
