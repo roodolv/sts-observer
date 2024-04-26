@@ -1,0 +1,28 @@
+Monster1: Small Slimes
+Monster2: Cultist
+Monster3: 3 Louse
+Monster4: Exordium Wildlife
+Monster5: Blue Slaver
+Monster6: Gremlin Gang
+Monster7: Exordium Wildlife
+Monster8: Blue Slaver
+Monster9: Red Slaver
+Monster10: Looter
+Monster11: Large Slime
+Monster12: Blue Slaver
+Monster13: Lots of Slimes
+Monster14: Red Slaver
+Monster15: Gremlin Gang
+Elite1: 3 Sentries
+Elite2: Lagavulin
+Elite3: 3 Sentries
+Elite4: Lagavulin
+Elite5: Gremlin Nob
+Elite6: Lagavulin
+Elite7: 3 Sentries
+Elite8: Lagavulin
+Elite9: 3 Sentries
+Elite10: Lagavulin
+Boss1: Slime Boss
+Boss2: The Guardian
+Boss3: Hexaghost

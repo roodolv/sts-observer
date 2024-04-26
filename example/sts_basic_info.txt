@@ -1,0 +1,5 @@
+Player's Name: YOUR NAME
+Ascension level: 1
+Gold: 110
+Health: 72/72
+Play time: 10
