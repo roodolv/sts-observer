@@ -8,7 +8,6 @@ impl Mode {
     pub fn from(current: &Mode, new: &Mode) -> Mode {
         match (current, new) {
             // Waitingからの遷移
-            (Mode::IsWaiting(_), Mode::IsWatching(_)) => Mode::IsWatching(Watching::new()),
             (Mode::IsWaiting(_), Mode::IsFileIO(_)) => Mode::IsFileIO(FileIO::new()),
             // Watchingからの遷移
             (Mode::IsWatching(_), Mode::IsWaiting(_)) => Mode::IsWaiting(Waiting::new()),
